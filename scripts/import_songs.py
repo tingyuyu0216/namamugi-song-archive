@@ -27,10 +27,13 @@ def url_key(value):
     parsed = urlsplit(value)
     if (parsed.scheme != 'https' or parsed.hostname not in {'instagram.com', 'www.instagram.com'}
             or parsed.username or parsed.password or parsed.port
-            or not parsed.path.startswith(('/reel/', '/p/', '/tv/'))
+            or not parsed.path.startswith(('/reel/', '/reels/', '/p/', '/tv/'))
             or len(parsed.path.strip('/').split('/')) != 2):
         raise ValueError('instagram_url 必須是 HTTPS Instagram reel/p/tv 貼文連結')
-    return 'https://www.instagram.com' + parsed.path.rstrip('/') + '/'
+    path = parsed.path
+    if path.startswith('/reels/'):
+        path = '/reel/' + path[len('/reels/'):]
+    return 'https://www.instagram.com' + path.rstrip('/') + '/'
 
 
 def post_date(value):

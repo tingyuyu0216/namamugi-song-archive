@@ -72,6 +72,19 @@ class ImportTests(unittest.TestCase):
                 self.assertNotEqual(self.run_import().returncode, 0)
                 self.assertEqual(self.output.read_text(), '[]\n')
 
+    def test_reels_link_matches_existing_reel(self):
+        self.assertEqual(module.url_key('https://www.instagram.com/reels/one/'),
+                         'https://www.instagram.com/reel/one/')
+        self.workbook([['曲', '歌手', 'https://www.instagram.com/reel/one/']],
+                      ['title', 'artist', 'instagram_url'])
+        self.assertEqual(self.run_import().returncode, 0)
+        self.workbook([['更新曲', '歌手', 'https://www.instagram.com/reels/one/']],
+                      ['title', 'artist', 'instagram_url'])
+        self.assertEqual(self.run_import().returncode, 0)
+        songs = json.loads(self.output.read_text())
+        self.assertEqual(len(songs), 1)
+        self.assertEqual(songs[0]['title'], '更新曲')
+
     def test_missing_header_and_empty_file(self):
         self.workbook([['曲']], ['title'])
         self.assertNotEqual(self.run_import().returncode, 0)
